@@ -2,9 +2,9 @@
 This api implements the CRUD  endpoints to start the api run the following
 1. From your root diremctory run `python install -m -r requirements.txt` to install all dependacies
 2. To run the api locally on your machine 
-### on linux and macos run `export FLASK_APP=app.py`
-### on windows run `set FLASK_APP=app`
-### on windows powershell run `$env:FLASK_APP="app.py"`
+on linux and macos run `export FLASK_APP=app.py`
+on windows run `set FLASK_APP=app`
+on windows powershell run `$env:FLASK_APP="app.py"`
 
 ## -/create
 
