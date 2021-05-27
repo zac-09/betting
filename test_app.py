@@ -32,7 +32,7 @@ def client():
     os.unlink(app.app.config['DATABASE'])
 
 
-# Test create   #######################################
+# test odd creation
 def test_create_without_key(client):
 
     rv = client.post('/create', json=test_data)

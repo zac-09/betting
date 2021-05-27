@@ -1,19 +1,16 @@
+from sqlite3.dbapi2 import Error
 from flask_restful import Resource, reqparse
-from schemas.odds import OddSchema
+
 from utils.util import api_key_required
+from config.dbController import SQLite
 
 from flask import request
-from datetime import datetime
-
-
-from models.odds import OddsModel
 
 
 BLANK_ERROR = "'{}' cannot be blank or of wrong type."
 CREATED_SUCCESSFULLY = " Odds created successfully."
 
-odds_list_schema = OddSchema(many=True)
-odds_schema = OddSchema()
+
 
 _odds_parser = reqparse.RequestParser()
 _odds_parser.add_argument(
@@ -45,7 +42,7 @@ class UpdateOdds(Resource):
     """
     @classmethod
     @api_key_required
-    def put(cls,odd_id):
+    def put(cls, odd_id):
         data = _odds_parser.parse_args()
 
         odds_data = request.get_json()
@@ -57,29 +54,22 @@ class UpdateOdds(Resource):
         home_team_win_odds = odds_data["home_team_win_odds"]
         draw_odds = odds_data["draw_odds"]
 
-        game_date =datetime.strptime(odds_data["game_date"], "%d-%m-%Y") 
-        print("id is",odd_id)
+        game_date = odds_data["game_date"]
+        print("id is", odd_id)
         try:
-            odds = OddsModel.find_by_id(odd_id)
+            db = SQLite.getInstance().connect()
+
+            read, odds = db.get(odd_id)
+          
+            if read is False:
+                return {"message": "Error reading from db"}, 500
             if odds:
-                odds.home_team = home_team
-                odds.away_team = away_team
-                odds.away_team_win_odds = away_team_win_odds
-                odds.home_team_win_odds = home_team_win_odds
-                odds.draw_odds = draw_odds
-                odds.game_date = game_date
-                odds.league = league
+                db.update(league, home_team, away_team, home_team_win_odds,
+                          away_team_win_odds, draw_odds, game_date)
 
-
-
-                odds.save_to_db()
+                
                 return {"message": "odds have  been successfully updated from databse"}, 200
-            return {"message":"Error updating odds not found"}, 404
-        except:
-            return{"message":"Error updating odds"}, 500
-        
-      
-
-
-
-
+            return {"message": "Error updating odds not found"}, 404
+        except Error:
+            print(Error)
+            return{"message": "Error updating odds"}, 500

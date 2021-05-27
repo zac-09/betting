@@ -1,17 +1,16 @@
 from flask_restful import Resource, reqparse
-from schemas.odds import OddSchema
+
 from flask import request
-from datetime import datetime
 from utils.util import api_key_required
+from config.dbController import SQLite
 
 
-from models.odds import OddsModel
+
 
 
 BLANK_ERROR = "'{}' cannot be blank or of wrong type."
 
 
-odds_list_schema = OddSchema(many=True)
 
 _odds_parser = reqparse.RequestParser()
 _odds_parser.add_argument(
@@ -36,12 +35,18 @@ class ReadOdds(Resource):
         odds_data = request.get_json()
         league = odds_data["league"]
         date_range = odds_data["date_range"]
-        range_from = datetime.strptime(date_range.split("to")[0].strip(), "%d-%m-%Y") 
-        range_to = datetime.strptime(date_range.split("to")[1].strip(), "%d-%m-%Y") 
+        range_from = date_range.split("to")[0].strip() 
+        range_to = date_range.split("to")[1].strip() 
         try:
-            odds = OddsModel.find_witin_range(league,range_from,range_to)
-            print("the ranges are",range_from,range_to)
-            return {"odds":odds_list_schema.dump(odds)}, 200
+         
+            db = SQLite.getInstance().connect()
+            read, odds = db.read(league,range_from,range_to)
+            if read is False:
+                return{"error": odds}, 500
+            if len(odds) > 0 :
+              return {"odds":odds}, 200
+            else:
+                return{"odds": " No natching odds found in the specified range"}, 404
         except:
             return {"message":"Error reading data from database"}, 500
 

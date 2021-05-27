@@ -5,7 +5,7 @@ def api_key_required(function):
     @wraps(function)
     def decorated_function(*args, **kwargs):
         key = os.environ.get("API_KEY")
-
+        print("the key is",key)
         print("from headers",request.headers.get('api-key'))
         if  request.headers.get('api-key') == key:
             return function(*args, **kwargs)

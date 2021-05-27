@@ -1,23 +1,22 @@
 from flask import Flask,jsonify
 from flask_restful import Api
-from natsWrapper import run 
-from db import db
+
+
 from resources.create_odds import CreateOdds
 from resources.delete_odds import DeleteOdds
 from resources.update_odds import UpdateOdds
 from resources.read_odds import ReadOdds
-
+import sqlite3 
 
 
 from marshmallow import ValidationError
-from ma import ma
-import asyncio
-from nats.aio.client import Client as NATS
-from stan.aio.client import Client as STAN
-import os
+
+import sqlite3
+
+
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
+
 
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["PROPAGATE_EXCEPTIONS"] = True
@@ -31,9 +30,7 @@ def handle_marshmallow_validation(err):
     return jsonify(err.messages), 400
 
 
-@app.before_first_request 
-def create_tables():
-    db.create_all() 
+db = sqlite3.connect("data.db")
 
 
 api.add_resource(CreateOdds,"/create")
@@ -41,12 +38,19 @@ api.add_resource(DeleteOdds,"/delete")
 api.add_resource(ReadOdds,"/read")
 api.add_resource(UpdateOdds,"/update/<odd_id>")
 
-db.init_app(app)
-print("reacehed there")
+
+def init_db():
+    with app.app_context():
+     
+        with app.open_resource('schema.sql', mode='r') as f:
+            db.cursor().executescript(f.read())
+        db.commit()
+
+
 
 
 if __name__ == "__main__":
-    ma.init_app(app)
+   
   
    
 

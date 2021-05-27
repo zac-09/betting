@@ -1,14 +1,12 @@
+from sqlite3.dbapi2 import Error
 from flask_restful import Resource, reqparse
-from schemas.odds import OddSchema
 from flask import request
-from models.odds import OddsModel
-from test import CreatOddsPublisher
+
+from config.dbController import SQLite
 from utils.util import api_key_required
 BLANK_ERROR = "'{}' cannot be blank or of wrong type."
 CREATED_SUCCESSFULLY = " Odds created successfully."
 
-odds_list_schema = OddSchema(many=True)
-odds_schema = OddSchema()
 
 
 _odds_parser = reqparse.RequestParser()
@@ -44,15 +42,25 @@ class CreateOdds(Resource):
     @api_key_required
     def post(cls):
         data = _odds_parser.parse_args()
+        odds_data = request.get_json()
+        home_team = odds_data["home_team"]
+        league = odds_data["league"]
+
+        away_team = odds_data["away_team"]
+        away_team_win_odds = odds_data["away_team_win_odds"]
+        home_team_win_odds = odds_data["home_team_win_odds"]
+        draw_odds = odds_data["draw_odds"]
+        game_date = odds_data["game_date"]
         print("data is:",data)
         try:
-            odds = OddsModel(**data)
-            odds.save_to_db()
-        except:
+           db = SQLite.getInstance().connect()
+           odds = db.insert(league,home_team,away_team,home_team_win_odds,away_team_win_odds,draw_odds,game_date)
+           
+        except Error as err:
+            print(err)
             return {"message": "Error inserting in database"}, 500
-        print(odds)
-        publisher = CreatOddsPublisher()
-        publisher.publish(request.get_json())
-        return {"message": CREATED_SUCCESSFULLY,"odds":odds_schema.dump(odds) }, 200
+   
+      
+        return {"message": CREATED_SUCCESSFULLY, }, 200
 
   
