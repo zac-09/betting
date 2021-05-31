@@ -6,6 +6,11 @@ on linux and macos run `export FLASK_APP=app.py`
 on windows run `set FLASK_APP=app`
 on windows powershell run `$env:FLASK_APP="app.py"`
 
+
+
+
+## Badges
+![alt text](https://github.com/zac-09/betting/blob/master/coverage.svg?raw=true)
 ## -/create
 
 Create odds. 
