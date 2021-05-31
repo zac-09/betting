@@ -30,11 +30,11 @@ class SQLite(DB):
         except sqlite3.Error as e:
             return False, e.args[0]
 
-    def update(self, league, home_team, away_team, home_team_win_odds, away_team_win_odds, draw_odds, game_date):
+    def update(self,id, league, home_team, away_team, home_team_win_odds, away_team_win_odds, draw_odds, game_date):
         try:
-            sql = "UPDATE odds set league = ?, home_team = ?,away_team = ?,home_team_win_odds = ?,away_team_win_odds = ?,draw_odds = ?,game_date = ?"
+            sql = "UPDATE odds set league = ?, home_team = ?,away_team = ?,home_team_win_odds = ?,away_team_win_odds = ?,draw_odds = ?,game_date = ? where id = ?"
             odds = self.db.execute(sql, (league, home_team, away_team,
-                                         home_team_win_odds, away_team_win_odds, draw_odds, game_date))
+                                         home_team_win_odds, away_team_win_odds, draw_odds, game_date,id))
             self.db.commit()
             return True, odds
         except sqlite3.Error as e:

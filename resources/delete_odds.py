@@ -3,10 +3,11 @@ from flask_restful import Resource, reqparse
 from utils.util import api_key_required
 
 from flask import request
+from datetime import datetime
 
 
-from config.dbController import SQLite
-
+from controllers.dbController import SQLite
+from controllers.memoryDb import InMemory
 
 
 
@@ -42,11 +43,13 @@ class DeleteOdds(Resource):
         odds_data = request.get_json()
         home_team = odds_data["home_team"]
         away_team = odds_data["away_team"]
-        game_date = odds_data["game_date"]
+        game_date = datetime.strptime(
+            odds_data["game_date"].strip(), "%d-%m-%Y")
 
         try:
 
-            db = SQLite.getInstance().connect()
+            # db = SQLite.getInstance().connect()
+            db = InMemory.getInstance()
 
             read, odds = db.find_by_required_field(
                 home_team, away_team, game_date)
@@ -54,8 +57,11 @@ class DeleteOdds(Resource):
             if read is False:
                 return {"message": "Error reading from db"}, 500
             if odds:
-                db.delete(home_team, away_team, game_date)
-                return {"message": "odds have  been successfully deleted from databse"}, 200
+                deleted, odds =   db.delete(home_team, away_team, game_date)
+                if deleted is True:
+                 return {"message": "odds have  been successfully deleted from databse"}, 200
+                else:
+                    return {"message": "Error deleting data from database"}, 500
             return {"message": "Error deleting odds not found"}, 404
         except:
             return {"message": "Error deleting data from database"}, 500

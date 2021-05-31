@@ -1,15 +1,14 @@
+from os import error
+from sqlite3.dbapi2 import Error
 from flask_restful import Resource, reqparse
-
+from datetime import datetime
 from flask import request
 from utils.util import api_key_required
-from config.dbController import SQLite
-
-
-
+from controllers.dbController import SQLite
+from controllers.memoryDb import InMemory
 
 
 BLANK_ERROR = "'{}' cannot be blank or of wrong type."
-
 
 
 _odds_parser = reqparse.RequestParser()
@@ -21,12 +20,10 @@ _odds_parser.add_argument(
 )
 
 
-
 class ReadOdds(Resource):
     """
     This resource is used to read odds from database within specified range
     """
-
 
     @classmethod
     @api_key_required
@@ -35,21 +32,23 @@ class ReadOdds(Resource):
         odds_data = request.get_json()
         league = odds_data["league"]
         date_range = odds_data["date_range"]
-        range_from = date_range.split("to")[0].strip() 
-        range_to = date_range.split("to")[1].strip() 
+        range_from = date_range.split("to")[0].strip()
+
+        range_to = date_range.split("to")[1].strip()
+
         try:
-         
-            db = SQLite.getInstance().connect()
-            read, odds = db.read(league,range_from,range_to)
+            print("from reader",range_from,range_to)
+            db = InMemory.getInstance()
+            read, odds = db.read(league, range_from, range_to)
+            # use sqlite
+            # db = SQLite.getInstance().connect()
+            # read, odds = db.read(league,range_from,range_to)
             if read is False:
                 return{"error": odds}, 500
-            if len(odds) > 0 :
-              return {"odds":odds}, 200
+            if len(odds) > 0:
+                return {"odds": odds}, 200
             else:
                 return{"odds": " No natching odds found in the specified range"}, 404
-        except:
-            return {"message":"Error reading data from database"}, 500
-
-
-      
-  
+        except error:
+            print(error)
+            return {"message": "Error reading data from database"}, 500

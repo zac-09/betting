@@ -1,8 +1,10 @@
 from sqlite3.dbapi2 import Error
 from flask_restful import Resource, reqparse
 from flask import request
+from datetime import datetime
 
-from config.dbController import SQLite
+from controllers.dbController import SQLite
+from controllers.memoryDb import InMemory
 from utils.util import api_key_required
 BLANK_ERROR = "'{}' cannot be blank or of wrong type."
 CREATED_SUCCESSFULLY = " Odds created successfully."
@@ -50,17 +52,21 @@ class CreateOdds(Resource):
         away_team_win_odds = odds_data["away_team_win_odds"]
         home_team_win_odds = odds_data["home_team_win_odds"]
         draw_odds = odds_data["draw_odds"]
-        game_date = odds_data["game_date"]
-        print("data is:",data)
+        game_date = datetime.strptime(
+            odds_data["game_date"].strip(), "%d-%m-%Y")
+      
         try:
-           db = SQLite.getInstance().connect()
+           db = InMemory.getInstance()
            odds = db.insert(league,home_team,away_team,home_team_win_odds,away_team_win_odds,draw_odds,game_date)
+        #    sqlite connection
+        #    db = SQLite.getInstance().connect()
+        #    odds = db.insert(league,home_team,away_team,home_team_win_odds,away_team_win_odds,draw_odds,game_date)
+           return {"message": CREATED_SUCCESSFULLY, }, 200
            
         except Error as err:
             print(err)
             return {"message": "Error inserting in database"}, 500
    
       
-        return {"message": CREATED_SUCCESSFULLY, }, 200
 
   
