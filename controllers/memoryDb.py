@@ -29,8 +29,10 @@ class InMemory(DB):
                 "game_date": game_date
             }
             db.append(odds)
-           
-            return True, db
+          
+            display_odds = odds.copy()
+            display_odds['game_date'] = f" {display_odds['game_date']}"
+            return True, [display_odds]
         except error:
             print("An error occured",error)
             return False, "falied to insert into dictionary"
@@ -110,6 +112,10 @@ class InMemory(DB):
             return True, returned_odds
         except:
             return False, "failed to read from db"
+    def display_records(self,odds):
+        for odd in odds:
+            odd["game_date"] = f"{odd['game_date']}"
+        return odds
 
     @staticmethod
     def getInstance(re_init=False):

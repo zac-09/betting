@@ -53,7 +53,7 @@ class DeleteOdds(Resource):
 
             read, odds = db.find_by_required_field(
                 home_team, away_team, game_date)
-
+    
             if read is False:
                 return {"message": "Error reading from db"}, 500
             if odds:

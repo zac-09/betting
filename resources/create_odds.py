@@ -10,7 +10,6 @@ BLANK_ERROR = "'{}' cannot be blank or of wrong type."
 CREATED_SUCCESSFULLY = " Odds created successfully."
 
 
-
 _odds_parser = reqparse.RequestParser()
 _odds_parser.add_argument(
     "league", type=str, required=True, help=BLANK_ERROR.format("league")
@@ -54,19 +53,16 @@ class CreateOdds(Resource):
         draw_odds = odds_data["draw_odds"]
         game_date = datetime.strptime(
             odds_data["game_date"].strip(), "%d-%m-%Y")
-      
+
         try:
-           db = InMemory.getInstance()
-           odds = db.insert(league,home_team,away_team,home_team_win_odds,away_team_win_odds,draw_odds,game_date)
+            db = InMemory.getInstance()
+            read, odds = db.insert(
+                league, home_team, away_team, home_team_win_odds, away_team_win_odds, draw_odds, game_date)
         #    sqlite connection
         #    db = SQLite.getInstance().connect()
         #    odds = db.insert(league,home_team,away_team,home_team_win_odds,away_team_win_odds,draw_odds,game_date)
-           return {"message": CREATED_SUCCESSFULLY, }, 200
-           
+            return {"message": CREATED_SUCCESSFULLY, "odds": odds}, 200
+
         except Error as err:
             print(err)
             return {"message": "Error inserting in database"}, 500
-   
-      
-
-  
