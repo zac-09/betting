@@ -5,6 +5,7 @@ from datetime import datetime
 
 from controllers.dbController import SQLite
 from controllers.memoryDb import InMemory
+from controllers.firestore import Firestore
 from utils.util import api_key_required
 BLANK_ERROR = "'{}' cannot be blank or of wrong type."
 CREATED_SUCCESSFULLY = " Odds created successfully."
@@ -51,17 +52,20 @@ class CreateOdds(Resource):
         away_team_win_odds = odds_data["away_team_win_odds"]
         home_team_win_odds = odds_data["home_team_win_odds"]
         draw_odds = odds_data["draw_odds"]
-        game_date = datetime.strptime(
-            odds_data["game_date"].strip(), "%d-%m-%Y")
+        game_date = odds_data["game_date"]
 
         try:
-            db = InMemory.getInstance()
-            read, odds = db.insert(
-                league, home_team, away_team, home_team_win_odds, away_team_win_odds, draw_odds, game_date)
-        #    sqlite connection
-        #    db = SQLite.getInstance().connect()
-        #    odds = db.insert(league,home_team,away_team,home_team_win_odds,away_team_win_odds,draw_odds,game_date)
+            # db = InMemory.getInstance()
+            # read, odds = db.insert(
+            #     league, home_team, away_team, home_team_win_odds, away_team_win_odds, draw_odds, game_date)
+        #    firestore connection
+            db = Firestore.getInstance().connect()
+            read , odds = db.insert(league,home_team,away_team,home_team_win_odds,away_team_win_odds,draw_odds,game_date)
             return {"message": CREATED_SUCCESSFULLY, "odds": odds}, 200
+            # sql lite
+            # db = SQLite.getInstance().connect()
+            # read , odds = db.insert(league,home_team,away_team,home_team_win_odds,away_team_win_odds,draw_odds,game_date)
+            # return {"message": CREATED_SUCCESSFULLY, "odds": odds}, 200
 
         except Error as err:
             print(err)

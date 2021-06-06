@@ -3,14 +3,14 @@ from interfaces.db import DB
 import random
 from datetime import datetime
 
-db =[]
+db = []
 
 
 class InMemory(DB):
     _instance = None
 
     def __init__(self):
-      pass
+        pass
 
     def connect():
         pass
@@ -19,22 +19,23 @@ class InMemory(DB):
         global db
         try:
             odds = {
-                "id": random.randint(1,999),
+                "id": random.randint(1, 999),
                 "league": league,
                 "home_team": home_team,
                 "away_team": away_team,
                 "home_team_win_odds": home_team_win_odds,
                 "away_team_win_odds": away_team_win_odds,
                 "draw_odds": draw_odds,
-                "game_date": game_date
+                "game_date": datetime.strptime(
+                    game_date.strip(), "%d-%m-%Y")
             }
             db.append(odds)
-          
+
             display_odds = odds.copy()
             display_odds['game_date'] = f" {display_odds['game_date']}"
             return True, [display_odds]
         except error:
-            print("An error occured",error)
+            print("An error occured", error)
             return False, "falied to insert into dictionary"
 
     def update(self, odd_id, league, home_team, away_team, home_team_win_odds, away_team_win_odds, draw_odds, game_date):
@@ -59,12 +60,12 @@ class InMemory(DB):
 
     def delete(self, home_team, away_team, game_date):
         global db
-        
+
         try:
             for odds in db:
                 if odds["home_team"] == home_team and odds["away_team"] == away_team and odds["game_date"] == game_date:
                     index = db.index(odds)
-                    
+
                     db.pop(index)
                 return True, odds
         except:
@@ -73,16 +74,15 @@ class InMemory(DB):
     def read(self, league, date_from, date_to):
         global db
 
-     
         range_odds = []
         try:
             for odds in db:
-                if odds["league"] == league and odds["game_date"] >= datetime.strptime(date_from,"%d-%m-%Y") and odds["game_date"] <= datetime.strptime(date_to,"%d-%m-%Y"):
+                if odds["league"] == league and odds["game_date"] >= datetime.strptime(date_from, "%d-%m-%Y") and odds["game_date"] <= datetime.strptime(date_to, "%d-%m-%Y"):
                     new_odds_dict = odds.copy()
                     range_odds.append(new_odds_dict)
-                  
+
             for odd in range_odds:
-                   odd["game_date"] = f"{odd['game_date']}"
+                odd["game_date"] = f"{odd['game_date']}"
             return True, range_odds
         except error:
             print(error)
@@ -93,7 +93,7 @@ class InMemory(DB):
         returned_odds = []
         try:
             for odds in db:
-               
+
                 if odds["id"] == int(odd_id):
 
                     returned_odds.append(odds)
@@ -104,7 +104,7 @@ class InMemory(DB):
     def find_by_required_field(self, home_team, away_team, game_date):
         returned_odds = []
         global db
-        print("From required fields",home_team,away_team,game_date)
+        print("From required fields", home_team, away_team, game_date)
         try:
             for odds in db:
                 if odds["home_team"] == home_team and odds["away_team"] == away_team and odds["game_date"] == game_date:
@@ -112,7 +112,8 @@ class InMemory(DB):
             return True, returned_odds
         except:
             return False, "failed to read from db"
-    def display_records(self,odds):
+
+    def display_records(self, odds):
         for odd in odds:
             odd["game_date"] = f"{odd['game_date']}"
         return odds

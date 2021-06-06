@@ -148,6 +148,7 @@ def test_read_odds_with_auth(client):
         "league": "Champions League",
         "date_range": "12-09-2018 to 18-09-2024"
     }
+    response1 =client.post('/create',json=test_data,headers=headers)
     response = client.get('/read', json=data, headers=headers)
     json_data = response.get_json()
     assert response.status_code == 200

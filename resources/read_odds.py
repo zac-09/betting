@@ -6,6 +6,7 @@ from flask import request
 from utils.util import api_key_required
 from controllers.dbController import SQLite
 from controllers.memoryDb import InMemory
+from controllers.firestore import Firestore
 
 
 BLANK_ERROR = "'{}' cannot be blank or of wrong type."
@@ -38,13 +39,15 @@ class ReadOdds(Resource):
 
         try:
             print("from reader",range_from,range_to)
-            db = InMemory.getInstance()
-            read, odds = db.read(league, range_from, range_to)
+            # db = InMemory.getInstance()
+            # read, odds = db.read(league, range_from, range_to)
             # use sqlite
             # db = SQLite.getInstance().connect()
-            # read, odds = db.read(league,range_from,range_to)
+            db = Firestore.getInstance().connect()
+
+            read, odds = db.read(league,range_from,range_to)
             if read is False:
-                return{"error": odds}, 500
+                return{"error": odds}, 404
             if len(odds) > 0:
                 return {"odds": odds}, 200
             else:

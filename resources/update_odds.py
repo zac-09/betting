@@ -4,14 +4,13 @@ from flask_restful import Resource, reqparse
 from utils.util import api_key_required
 from controllers.dbController import SQLite
 from controllers.memoryDb import InMemory
-
+from controllers.firestore import Firestore
 from flask import request
 from datetime import datetime
 
 
 BLANK_ERROR = "'{}' cannot be blank or of wrong type."
 CREATED_SUCCESSFULLY = " Odds created successfully."
-
 
 
 _odds_parser = reqparse.RequestParser()
@@ -56,22 +55,22 @@ class UpdateOdds(Resource):
         home_team_win_odds = odds_data["home_team_win_odds"]
         draw_odds = odds_data["draw_odds"]
 
-        game_date = datetime.strptime(
-            odds_data["game_date"].strip(), "%d-%m-%Y")
-      
+        game_date = odds_data["game_date"]
+
         try:
             # db = SQLite.getInstance().connect()
-            db = InMemory.getInstance()
+            db = Firestore.getInstance().connect()
+
+            # db = InMemory.getInstance()
 
             read, odds = db.get(odd_id)
-          
+
             if read is False:
-                return {"message": "Error reading from db"}, 500
+                return {"message": "Error reading from db"}, 404
             if odds:
-                db.update(odd_id,league, home_team, away_team, home_team_win_odds,
+                db.update(odd_id, league, home_team, away_team, home_team_win_odds,
                           away_team_win_odds, draw_odds, game_date)
 
-                
                 return {"message": "odds have  been successfully updated from databse"}, 200
             return {"message": "Error updating odds not found"}, 404
         except Error:

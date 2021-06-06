@@ -8,7 +8,7 @@ from datetime import datetime
 
 from controllers.dbController import SQLite
 from controllers.memoryDb import InMemory
-
+from controllers.firestore import Firestore
 
 
 BLANK_ERROR = "'{}' cannot be blank or of wrong type."
@@ -43,19 +43,21 @@ class DeleteOdds(Resource):
         odds_data = request.get_json()
         home_team = odds_data["home_team"]
         away_team = odds_data["away_team"]
-        game_date = datetime.strptime(
-            odds_data["game_date"].strip(), "%d-%m-%Y")
+        game_date = odds_data["game_date"]
 
         try:
 
             # db = SQLite.getInstance().connect()
-            db = InMemory.getInstance()
+            db = Firestore.getInstance().connect()
+
+            # db = InMemory.getInstance()
 
             read, odds = db.find_by_required_field(
                 home_team, away_team, game_date)
     
             if read is False:
-                return {"message": "Error reading from db"}, 500
+                return {"message": odds}, 500
+            
             if odds:
                 deleted, odds =   db.delete(home_team, away_team, game_date)
                 if deleted is True:

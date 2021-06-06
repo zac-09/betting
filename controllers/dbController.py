@@ -25,16 +25,20 @@ class SQLite(DB):
             odds = self.db.cursor().execute(sql, (league, home_team, away_team,
                                                   home_team_win_odds, away_team_win_odds, draw_odds, game_date))
             self.db.commit()
+            sql = "SELECT * FROM odds WHERE id = ?"
+            odds = self.db.execute(sql, (odds.lastrowid,))
 
-            return True, odds
+            odds_list = self.convertToDict(odds.fetchall())
+
+            return True, odds_list
         except sqlite3.Error as e:
             return False, e.args[0]
 
-    def update(self,id, league, home_team, away_team, home_team_win_odds, away_team_win_odds, draw_odds, game_date):
+    def update(self, id, league, home_team, away_team, home_team_win_odds, away_team_win_odds, draw_odds, game_date):
         try:
             sql = "UPDATE odds set league = ?, home_team = ?,away_team = ?,home_team_win_odds = ?,away_team_win_odds = ?,draw_odds = ?,game_date = ? where id = ?"
             odds = self.db.execute(sql, (league, home_team, away_team,
-                                         home_team_win_odds, away_team_win_odds, draw_odds, game_date,id))
+                                         home_team_win_odds, away_team_win_odds, draw_odds, game_date, id))
             self.db.commit()
             return True, odds
         except sqlite3.Error as e:
@@ -46,12 +50,12 @@ class SQLite(DB):
     def delete(self, home_team, away_team, game_date):
         try:
             sql = "DELETE FROM odds WHERE  home_team = ? AND away_team = ? AND game_date = ? "
-            odds = self.db.execute(sql, ( home_team, away_team, game_date))
+            odds = self.db.execute(sql, (home_team, away_team, game_date))
             self.db.commit()
 
             return True, odds
         except sqlite3.Error as e:
-            print("an error occured",e.args[0])
+            print("an error occured", e.args[0])
             return False, e.args[0]
 
     def read(self, league, date_from, date_to):
@@ -67,26 +71,27 @@ class SQLite(DB):
         try:
             sql = "SELECT * FROM odds WHERE id = ?"
             odds = self.db.execute(sql, (id,))
-          
+
             odds_list = self.convertToDict(odds.fetchall())
-            print("after get",odds_list)
+            print("after get", odds_list)
             return True, odds_list
         except sqlite3.Error as e:
             return False, e.args[0]
-    def find_by_required_field(self, home_team,away_team,game_date):
+
+    def find_by_required_field(self, home_team, away_team, game_date):
         try:
             sql = "SELECT * FROM odds WHERE home_team = ? AND away_team = ? AND game_date = ?"
-            odds = self.db.execute(sql, (home_team,away_team,game_date))
-          
+            odds = self.db.execute(sql, (home_team, away_team, game_date))
+
             odds_list = self.convertToDict(odds.fetchall())
-            print("after get",odds_list)
+            print("after get", odds_list)
             return True, odds_list
         except sqlite3.Error as e:
             return False, e.args[0]
 
     def convertToDict(self, tuples):
         odds = []
-       
+
         for row in tuples:
             odd = {
                 "id": row[0],

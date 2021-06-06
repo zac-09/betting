@@ -8,3 +8,4 @@ asyncio-nats-streaming
 pytest==6.0.1
 pytest-cov==2.10.0
 coverage==5.2.1
+firebase_admin
