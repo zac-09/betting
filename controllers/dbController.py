@@ -55,7 +55,7 @@ class SQLite(DB):
 
             return True, odds
         except sqlite3.Error as e:
-            print("an error occured", e.args[0])
+            print("an error occured", e.args[0]) 
             return False, e.args[0]
 
     def read(self, league, date_from, date_to):
