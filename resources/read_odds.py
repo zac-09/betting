@@ -28,7 +28,7 @@ class ReadOdds(Resource):
 
     @classmethod
     @api_key_required
-    def get(cls):
+    def post(cls):
         data = _odds_parser.parse_args()
         odds_data = request.get_json()
         league = odds_data["league"]
