@@ -136,7 +136,7 @@ def test_read_odds_without_auth(client):
         "league":  "Champions League",
         "date_range": "12-09-2018 to 18-09-2024"
     }
-    response = client.get('/read', json=data)
+    response = client.post('/read', json=data)
     json_data = response.get_json()
 
     assert json_data['message'] == 'please contanct admin for api key'
@@ -149,7 +149,7 @@ def test_read_odds_with_auth(client):
         "date_range": "12-09-2018 to 18-09-2024"
     }
     response1 =client.post('/create',json=test_data,headers=headers)
-    response = client.get('/read', json=data, headers=headers)
+    response = client.post('/read', json=data, headers=headers)
     json_data = response.get_json()
     assert response.status_code == 200
 
@@ -159,7 +159,7 @@ def test_read_odds_with_invalid_filds(client):
         "league": "Champions League",
         "invalid": "112-09-2018 to 18-09-2024"  # wrong param
     }
-    response = client.get('/read', json=data, headers=headers)
+    response = client.post('/read', json=data, headers=headers)
     json_data = response.get_json()
     assert response.status_code == 400
 
